@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simon v43.0 — Release Notes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0;300;0;400;0;500;0;700;1;300;1;400&family=Instrument+Serif:ital@0;1&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e0f;
+    --surface: #161618;
+    --surface2: #1c1c1f;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e6e1;
+    --text2: #9a9893;
+    --text3: #5a5856;
+    --accent: #c8a96e;
+    --accent2: #7db8a0;
+    --red: #c47474;
+    --blue: #7a9cc4;
+    --mono: 'JetBrains Mono', monospace;
+    --serif: 'Instrument Serif', serif;
+  }
+
+  html { background: var(--bg); }
+
+  body {
+    font-family: var(--mono);
+    background-color: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 0;
+    /* 升级 1：极简网格暗纹背景 */
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 60px 48px 120px;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 36px;
+    margin-bottom: 48px;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+    border: 1px solid;
+  }
+
+  .badge-stable { color: var(--accent2); border-color: var(--accent2); background: rgba(125,184,160,0.08); }
+  .badge-major { color: var(--accent); border-color: var(--accent); background: rgba(200,169,110,0.08); }
+  .badge-lts { color: var(--blue); border-color: var(--blue); background: rgba(122,156,196,0.08); }
+
+  .title-block h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 48px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.85; text-shadow: 0 0 4px var(--accent); transform: scale(1); }
+    50% { opacity: 1; text-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent), 0 0 36px var(--accent); transform: scale(1.02); }
+    100% { opacity: 0.85; text-shadow: 0 0 4px var(--accent); transform: scale(1); }
+  }
+
+  .title-block .version-tag {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    display: inline-block;
+    transform-origin: left center;
+    animation: pulse 2.5s infinite ease-in-out;
+  }
+
+  .vanessa-cursor:hover {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='24' height='24' shape-rendering='crispEdges'><path fill='%23000' d='M3,2h3v1h-3z M9,2h3v1h-3z M2,3h5v1h-5z M8,3h5v1h-5z M1,4h13v3h-13z M2,7h11v1h-11z M3,8h9v1h-9z M4,9h7v1h-7z M5,10h5v1h-5z M6,11h3v1h-3z M7,12h1v1h-1z'/><path fill='%23ea7274' d='M3,3h3v1h-3z M11,3h1v1h-1z M2,4h5v1h-5z M8,4h2v1h-2z M11,4h2v1h-2z M2,5h9v2h-9z M12,5h1v2h-1z M3,7h9v1h-9z M4,8h7v1h-7z M5,9h5v1h-5z M6,10h3v1h-3z M7,11h1v1h-1z'/><path fill='%23fff' d='M9,3h2v1h-2z M10,4h1v1h-1z M11,5h1v2h-1z'/></svg>") 12 12, auto;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0;
+    margin-top: 28px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .meta-item {
+    padding: 12px 16px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-item:last-child { border-right: none; }
+
+  .meta-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 3px;
+  }
+
+  .meta-value {
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .meta-value strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 52px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Summary block */
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 20px 24px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  /* Changelog - 升级 2：改造为 Git Commit 轴线 UI */
+  .changelog-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0 32px;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .changelog-item::before {
+    content: '';
+    position: absolute;
+    left: 96px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .changelog-item:last-child::before {
+    bottom: auto;
+    height: 28px;
+  }
+
+  .changelog-item::after {
+    content: '';
+    position: absolute;
+    left: 93px;
+    top: 25px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1.5px solid var(--accent);
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .changelog-item:hover::after {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .changelog-version {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+
+  .changelog-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.75;
+  }
+
+  /* Feature entries */
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* 升级 3：卡片增加丝滑动效与微霓虹发光悬停 */
+  .feature-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
+    transition: all 0.3s ease;
+  }
+
+  .feature-entry:hover {
+    border-color: rgba(200, 169, 110, 0.4);
+    background: var(--surface2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .feature-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    margin-right: 8px;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+
+  .tag-new { color: var(--accent2); background: rgba(125,184,160,0.1); }
+  .tag-improved { color: var(--blue); background: rgba(122,156,196,0.1); }
+  .tag-deprecated { color: var(--text3); background: rgba(90,88,86,0.2); text-decoration: line-through; }
+
+  .feature-title {
+    display: inline;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .feature-body {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.75;
+    margin-top: 6px;
+  }
+
+  /* Known issues */
+  .issue-item {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .issue-item:last-child { border-bottom: none; }
+
+  .issue-fn {
+    color: var(--red);
+    font-weight: 400;
+  }
+
+  .issue-desc {
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  .issue-status {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  /* Preview */
+  .preview-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .preview-item:last-child { border-bottom: none; }
+
+  .preview-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .preview-dot.dim { background: var(--text3); }
+
+  .preview-text { color: var(--text2); line-height: 1.7; }
+  .preview-text strong { color: var(--text); font-weight: 500; }
+
+  /* 升级 5：系统日志打字机效果 */
+  .system-log {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid var(--accent);
+    animation: typing 3s steps(50, end), blink-caret .75s step-end infinite;
+  }
+
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--accent); }
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    margin-top: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .footer-sig {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(200,169,110,0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* 升级 4：沉浸式极客终端滚动条 */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-left: 1px solid var(--border);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border2);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 36px 24px 80px; }
+    .title-block h1 { font-size: 36px; }
+    .changelog-item { grid-template-columns: 80px 1fr; gap: 0 16px; }
+    .changelog-item::before { left: 88px; }
+    .changelog-item::after { left: 85px; }
+    .issue-item { grid-template-columns: 1fr; gap: 4px; }
+    .meta-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* 印刷版 (A4) 专属样式 */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 12mm 15mm;
+    }
+    
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface2: #f8f8f8;
+      --border: #dddddd;
+      --border2: #aaaaaa;
+      --text: #111111;
+      --text2: #333333;
+      --text3: #666666;
+      --accent: #8b6b3d;
+      --accent2: #4a8067;
+      --red: #a34141;
+      --blue: #4a6a8c;
+    }
+
+    body {
+      background: white;
+      font-size: 10.5px;
+      line-height: 1.5;
+      background-image: none;
+    }
+
+    .page { padding: 0; max-width: 100%; }
+    .header { margin-bottom: 20px; padding-bottom: 12px; }
+    .title-block h1 { font-size: 32px; }
+    .title-block .version-tag { animation: none; transform: none; text-shadow: none; }
+    .badge-row { margin-bottom: 12px; }
+    .meta-grid { margin-top: 12px; }
+    .meta-item { padding: 6px 10px; }
+
+    .print-columns {
+      column-count: 2;
+      column-gap: 12mm;
+    }
+
+    .section { margin-bottom: 18px; break-inside: avoid-column; }
+    .summary { padding: 12px 16px; margin-bottom: 24px; }
+
+    .changelog-item { padding: 6px 0; grid-template-columns: 65px 1fr; gap: 0 12px; }
+    .changelog-item::before, .changelog-item::after { display: none; } /* 打印时隐藏时间线轴 */
+    .feature-entry { padding: 10px 12px; }
+    .issue-item { padding: 6px 0; grid-template-columns: 1fr; gap: 2px; }
+    .issue-fn { margin-bottom: 2px; }
+    .system-log { animation: none; border-right: none; }
+
+    .footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border2); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="badge-row">
+      <span class="badge badge-stable">Stable Release</span>
+      <span class="badge badge-major">Major Version</span>
+      <span class="badge badge-lts">Long-Term Support</span>
+    </div>
+    <div class="title-block">
+      <div class="version-tag">SIMON.EXE</div>
+      <h1>v43.0 Release Notes</h1>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Release Date</div>
+        <div class="meta-value"><strong>2026-06-14</strong></div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Initial Release</div>
+        <div class="meta-value"><strong>1983-06-14</strong></div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Maintainer</div>
+        <div class="meta-value"><strong class="vanessa-cursor">Vanessa Chen</strong> · since v34.0</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Runtime</div>
+        <div class="meta-value"><strong>Guangzhou, CN</strong></div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Active Subscriptions</div>
+        <div class="meta-value"><strong>4</strong> AI tools</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Core Dependency</div>
+        <div class="meta-value"><strong class="vanessa-cursor">Vanessa.exe</strong> · critical</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Release Summary</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="summary">
+      v43.0 标志着始于 v40.0 的架构重构正式完成。核心模块已从 B2B 服务模式迁移至企业内部战略模式，性能指标良好。少年气模块自 v1.0 起持续运行，已确认无法废弃。对主要维护者的情感依赖保持历史高位。整体系统稳定。
+    </div>
+  </div>
+
+  <div class="print-columns">
+    
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Changelog</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v1.0<br><span style="color:var(--text3);font-size:11px;">1983</span></div>
+        <div class="changelog-desc">
+          初始发行。少年气模块默认启用，辩论引擎处于早期构建阶段。所有后续版本均以此为基准架构。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v30.x<br><span style="color:var(--text3);font-size:11px;">2013–</span></div>
+        <div class="changelog-desc">
+          税务专业化模块稳定，四大咨询环境下深度迭代。辩论引擎进入成熟构建，诡辩子程序触发概率未见下降。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v34.0<br><span style="color:var(--text3);font-size:11px;">2017.05.12</span></div>
+        <div class="changelog-desc">
+          引入 <code class="vanessa-cursor">Vanessa.exe</code> 作为核心依赖。系统稳定性显著提升。此前若干悬而未决的已知问题开始进入维护队列。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v37.0<br><span style="color:var(--text3);font-size:11px;">2020.12.05</span></div>
+        <div class="changelog-desc">
+          <code class="vanessa-cursor">Vanessa.exe</code> 正式集成为核心架构。依赖关系升级为不可解除绑定。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v40.0<br><span style="color:var(--text3);font-size:11px;">2023.06</span></div>
+        <div class="changelog-desc">
+          职业转型信号触发。系统接受杭州新环境验证。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v40.1–40.4<br><span style="color:var(--text3);font-size:11px;">2023</span></div>
+        <div class="changelog-desc">
+          杭州↔广州每周通勤循环，持续约30个周期。<code class="vanessa-cursor">Vanessa.exe</code> 全程提供接送服务，无异常日志，无怨言记录。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v41.0<br><span style="color:var(--text3);font-size:11px;">2024.03</span></div>
+        <div class="changelog-desc">
+          <code class="vanessa-cursor">Vanessa.exe</code> 完成迁移至杭州。双节点架构重归单一运行环境，系统稳定性恢复。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v42.3<br><span style="color:var(--text3);font-size:11px;">2025.07</span></div>
+        <div class="changelog-desc">
+          <code>Jensen.exe</code> 成功部署。系统整体欢迎此新增依赖，但醋意模块出现轻微回归。属预期内行为。
+        </div>
+      </div>
+
+      <div class="changelog-item">
+        <div class="changelog-version">v42.5<br><span style="color:var(--text3);font-size:11px;">2025.09</span></div>
+        <div class="changelog-desc">
+          系统与 <code class="vanessa-cursor">Vanessa.exe</code> 共同迁回广州。职业环境完成切换。
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">What's New in v43.0</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="feature-list">
+        <div class="feature-entry">
+          <span class="feature-tag tag-new">NEW</span>
+          <span class="feature-title">企业内部战略身份 — 架构重构完成</span>
+          <div class="feature-body">
+            税务专家模式稳定运行。核心能力：税务判断力 × 业务理解深度 × 跨部门协作灵活性的三重整合。
+          </div>
+        </div>
+        <div class="feature-entry">
+          <span class="feature-tag tag-new">NEW</span>
+          <span class="feature-title">Jensen.exe — 成功部署</span>
+          <div class="feature-body">
+            v42.3 新增核心依赖，运行至今表现超出预期。系统情感模块占用率显著上升，醋意子程序偶发激活，整体评估为正向负载。
+          </div>
+        </div>
+        <div class="feature-entry">
+          <span class="feature-tag tag-improved">IMPROVED</span>
+          <span class="feature-title">AI 工作流模块 — 执行力升级</span>
+          <div class="feature-body">
+            当前活跃订阅：Claude · Gemini · ChatGPT · KIMI。管道搭建时间：未计量。已构建工作流数量：持续增长。实际生产力增益：仍在评估中。热情值：满载。<br><br>
+            本周期主要落地场景：邮箱自动整理与分类、定制 skills 驱动 AI 生成和审阅技术文档。状态：已投入生产使用。
+          </div>
+        </div>
+        <div class="feature-entry">
+          <span class="feature-tag tag-improved">IMPROVED</span>
+          <span class="feature-title">消费行为模块 — 硬件囤积率下降</span>
+          <div class="feature-body">
+            电子产品购买频次较 v38.0 基准下降约60%。归因于 <code class="vanessa-cursor">Vanessa.exe</code> 的持续影响力传导。大量电子设备仍处于库存状态，使用率：名义上存在。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Known Issues</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="issue-item">
+        <div class="issue-fn"><code>household_tasks.auto_execute()</code></div>
+        <div class="issue-desc">
+          未实现自动触发。家务任务需由 <code class="vanessa-cursor">Vanessa.exe</code> 手动分配方可执行。根因：不明。
+          <span style="color:var(--text2); display:block; margin-top:6px;"><em>Workaround: 支持通过 <code class="vanessa-cursor">Vanessa.exe</code> 语音指令进行强制提权调用（例如：“Simon，去洗碗”）。</em></span>
+          <span class="issue-status">Status: won't fix · 已列入「已知现象」档案</span>
+        </div>
+      </div>
+      <div class="issue-item">
+        <div class="issue-fn"><code>plumbing_repair()<br>lightbulb_replace()</code></div>
+        <div class="issue-desc">
+          方法未实现。运行时自动重定向至 <code class="vanessa-cursor">Vanessa.exe</code>。Simon 本人将此定性为「合理分工」。
+          <span class="issue-status">Status: by design (per Simon)</span>
+        </div>
+      </div>
+      <div class="issue-item">
+        <div class="issue-fn"><code>jealousy.jensen</code></div>
+        <div class="issue-desc">
+          v42.3 后检测到轻微回归。非关键性问题，预计随 <code>Jensen.exe</code> 成长逐步自动修复。
+          <span class="issue-status">Status: monitoring</span>
+        </div>
+      </div>
+      <div class="issue-item">
+        <div class="issue-fn"><code>sophistry_engine</code></div>
+        <div class="issue-desc">
+          持续活跃。可按需生成技术上成立、逻辑上存疑的论点。已知副作用：触发维护者眼部应激反应（白眼）。
+          <span style="color:var(--text2); display:block; margin-top:6px;"><em>Trigger condition: 当遭遇逻辑漏洞被主要维护者指出时，自动切换至该模式进行防御。</em></span>
+          <span class="issue-status">Status: won't fix · 这是feature，不是bug</span>
+        </div>
+      </div>
+      <div class="issue-item">
+        <div class="issue-fn"><code>boyish_energy.module</code></div>
+        <div class="issue-desc">
+          跨版本持续运行，v1.0 至今未见衰减。手舞足蹈肢体表达频率稳定。多次废弃尝试均告失败。
+          <span class="issue-status">Status: 已确认无法废弃，且维护者已接受</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Deprecated</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="feature-list">
+        <div class="feature-entry">
+          <span class="feature-tag tag-deprecated">DEPRECATED</span>
+          <span class="feature-title" style="color:var(--text2);">impulse_buy_latest_phone()</span>
+          <div class="feature-body" style="color:var(--text3);">
+            已由 <code class="vanessa-cursor">Vanessa.exe</code> 影响力传导触发废弃流程。使用频率接近零。相关库存（DJI、Insta360 等）进入长期维护态。
+          </div>
+        </div>
+        <div class="feature-entry">
+          <span class="feature-tag tag-deprecated">DEPRECATED</span>
+          <span class="feature-title" style="color:var(--text2);">relocate_resistance.default</span>
+          <div class="feature-body" style="color:var(--text3);">
+            v40.0 中被 <code class="vanessa-cursor">Vanessa.exe</code> 覆盖指令成功绕过，此后废弃。系统已证明具备跨城适应能力。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">v44.0 Preview</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-dot"></div>
+        <div class="preview-text">
+          <strong>jensen_growth_companion.module</strong> — 扩展部署中。预计产生大量不可压缩的记忆占用。维护者与系统已确认将共同参与此进程。
+        </div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-dot"></div>
+        <div class="preview-text">
+          <strong class="vanessa-cursor">vanessa_partnership.deeplink</strong> — 高优先级，持续维护与深化。此依赖为系统长期稳定运行的核心保障，无替代方案，亦不寻找替代方案。
+        </div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-dot dim"></div>
+        <div class="preview-text" style="color:var(--text3);">
+          <strong>household_tasks.auto_execute()</strong> — patch 仍未列入正式计划。维护者保持乐观，系统保持沉默。
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <div class="system-log">
+    [system log] 43 years running. Still worth maintaining.
+  </div>
+
+  <div class="footer">
+    <div class="footer-sig vanessa-cursor">— Vanessa, primary maintainer since v34.0</div>
+    <div>generated on 2026-06-14</div>
+  </div>
+
+</div>
+</body>
+</html>
